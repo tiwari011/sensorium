@@ -4,7 +4,9 @@ import useCmsContent from "../hooks/useCmsContent";
 
 function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isPhilosophyMenuOpen, setIsPhilosophyMenuOpen] = useState(false);
   const [isServicesMenuOpen, setIsServicesMenuOpen] = useState(false);
+  const philosophyMenuRef = useRef(null);
   const servicesMenuRef = useRef(null);
 
   const { content: servicesPageSettings } = useCmsContent({
@@ -16,17 +18,17 @@ function Navbar() {
 
   const showBlog = servicesPageSettings?.show_blog !== false;
 
-  const links = [
-    { label: "Home", href: "/" },
-    { label: "About Us", href: "/about-us" },
+  const philosophyLinks = [
     { label: "Our Mission", href: "/our-mission" },
     { label: "Our Vision", href: "/our-vision" },
     { label: "Our Approach", href: "/our-approach" },
-    { label: "Area of Support", href: "/areas-of-support" },
   ];
 
   useEffect(() => {
     const onClickOutside = (event) => {
+      if (philosophyMenuRef.current && !philosophyMenuRef.current.contains(event.target)) {
+        setIsPhilosophyMenuOpen(false);
+      }
       if (servicesMenuRef.current && !servicesMenuRef.current.contains(event.target)) {
         setIsServicesMenuOpen(false);
       }
@@ -44,18 +46,56 @@ function Navbar() {
           THE SENSORIUM SCHOOL
         </a>
 
+        <div className="flex items-center gap-2 lg:gap-3">
         <nav className="hidden flex-nowrap items-center gap-3 text-sm font-semibold text-stone-800 xl:gap-4 xl:text-base lg:flex">
-          {links.map((link) => (
-            <Link key={link.label} to={link.href} className="whitespace-nowrap hover:text-amber-700">
-              {link.label}
-            </Link>
-          ))}
+          <Link to="/" className="whitespace-nowrap hover:text-amber-700">
+            Home
+          </Link>
+          <Link to="/about-us" className="whitespace-nowrap hover:text-amber-700">
+            About Us
+          </Link>
+
+          <div className="relative" ref={philosophyMenuRef}>
+            <button
+              type="button"
+              onClick={() => {
+                setIsPhilosophyMenuOpen((prev) => !prev);
+                setIsServicesMenuOpen(false);
+              }}
+              className="inline-flex items-center gap-1 whitespace-nowrap hover:text-amber-700"
+            >
+              Our Philosophy
+              <span className="text-xs">{isPhilosophyMenuOpen ? "^" : "v"}</span>
+            </button>
+
+            {isPhilosophyMenuOpen ? (
+              <div className="absolute left-0 top-8 min-w-[11.5rem] rounded-xl border border-amber-200 bg-amber-50 p-2 shadow-lg">
+                {philosophyLinks.map((link) => (
+                  <Link
+                    key={link.label}
+                    to={link.href}
+                    className="block whitespace-nowrap rounded-lg px-3 py-2 text-sm text-stone-700 hover:bg-amber-100"
+                    onClick={() => setIsPhilosophyMenuOpen(false)}
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </div>
+            ) : null}
+          </div>
+
+          <Link to="/areas-of-support" className="whitespace-nowrap hover:text-amber-700">
+            Area of Support
+          </Link>
 
           {showBlog ? (
             <div className="relative" ref={servicesMenuRef}>
               <button
                 type="button"
-                onClick={() => setIsServicesMenuOpen((prev) => !prev)}
+                onClick={() => {
+                  setIsServicesMenuOpen((prev) => !prev);
+                  setIsPhilosophyMenuOpen(false);
+                }}
                 className="inline-flex items-center gap-1 whitespace-nowrap hover:text-amber-700"
               >
                 Our Services
@@ -110,21 +150,44 @@ function Navbar() {
             <span className="text-xl leading-none">{isMenuOpen ? "x" : "="}</span>
           </button>
         </div>
+        </div>
       </div>
 
       {isMenuOpen ? (
         <div className="border-t border-amber-100/90 bg-amber-50/95 px-4 py-3 backdrop-blur-md lg:hidden">
           <nav className="flex flex-col gap-2 text-base font-semibold text-stone-700">
-            {links.map((link) => (
+            <Link
+              to="/"
+              className="rounded-lg px-3 py-2 hover:bg-amber-100"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Home
+            </Link>
+            <Link
+              to="/about-us"
+              className="rounded-lg px-3 py-2 hover:bg-amber-100"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              About Us
+            </Link>
+            <div className="px-3 py-2 text-stone-800">Our Philosophy</div>
+            {philosophyLinks.map((link) => (
               <Link
                 key={link.label}
                 to={link.href}
-                className="rounded-lg px-3 py-2 hover:bg-amber-100"
+                className="rounded-lg py-2 pl-6 pr-3 hover:bg-amber-100"
                 onClick={() => setIsMenuOpen(false)}
               >
                 {link.label}
               </Link>
             ))}
+            <Link
+              to="/areas-of-support"
+              className="rounded-lg px-3 py-2 hover:bg-amber-100"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Area of Support
+            </Link>
             <Link
               to="/our-services"
               className="rounded-lg px-3 py-2 hover:bg-amber-100"
